@@ -1,0 +1,85 @@
+local ServerStorage = game.ServerStorage
+local Players= game:GetService("Players")
+local TycoonTemplate = ServerStorage:WaitForChild("TycoonTemplate")
+local TycoonSpawns = game.Workspace:WaitForChild("TycoonSpawn")
+local TycoonPlots = game.Workspace:WaitForChild("TycoonPlots")
+
+
+for _, SpawnMark in ipairs(TycoonSpawns:GetChildren()) do
+	local clonedplot = TycoonTemplate:Clone()
+	clonedplot.Name = SpawnMark.Name
+	
+	if clonedplot.PrimaryPart then
+		clonedplot:PivotTo(SpawnMark.CFrame)
+	end
+	
+	clonedplot.Parent = TycoonPlots
+end
+
+local function FindPlot()
+	for _, plot in ipairs(TycoonPlots:GetChildren()) do
+		if plot.Owner.Value == nil then
+			return plot
+			
+		end
+	end
+end
+
+
+local function AssignPlot(player)
+	local openplot = FindPlot()
+	
+	
+	if openplot then
+		openplot.Owner.Value = player
+		
+		
+		local platform = openplot:FindFirstChild("Platform")
+		if platform then
+			player.CharacterAdded:Connect(function(character)
+				task.wait(1)
+				character:PivotTo(platform.CFrame+Vector3.new(0,5,0))
+				
+			end)
+			
+			if player.Character then
+				player.Character:PivotTo(platform.CFrame+Vector3.new(0,5,0))
+			end
+		end
+	end
+end
+
+
+Players.PlayerAdded:Connect(AssignPlot)
+
+for _,player in pairs(Players:GetPlayers()) do
+	AssignPlot(player)
+	
+end
+
+Players.PlayerRemoving:Connect(function(player) 
+	for _, plot in ipairs(TycoonPlots:GetChildren()) do 
+		if plot.Owner.Value == player then 
+
+			-- 1. Clear out all physical leaves left on the field
+			local LeafStorage = plot:FindFirstChild("LeafStorage")
+			if LeafStorage then
+				for _, leafItem in ipairs(LeafStorage:GetChildren()) do
+					leafItem:Destroy() -- Deletes the leaf and safely cuts its .Touched connection
+				end
+			end
+
+			-- 2. Reset the plot's tracking stats back to zero / default state
+		
+
+			-- 3. Reset upgrades back to starter values (Adjust numbers to your game's defaults)
+			plot.MaxLeaves.Value = 10     -- Your starter leaf capacity
+			plot.SpawnRate.Value = 5    -- Your starter spawn delay in seconds
+
+			-- 4. Finally, set the owner to nil (Stops the spawning loop entirely)
+			plot.Owner.Value = nil 
+			
+
+		end 
+	end 
+end)
