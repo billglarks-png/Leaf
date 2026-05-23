@@ -1,0 +1,49 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local UiModule = require(ReplicatedStorage:WaitForChild("UiModule"))
+
+local player = game.Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+local TycoonPlots = game.Workspace:WaitForChild("TycoonPlots")
+local GuiContainer = PlayerGui:WaitForChild("TycoonGuis")
+
+
+local ScreenMap = {
+	{
+		partName = "Stats",
+		template = GuiContainer:WaitForChild("Stats"),
+		setup = UiModule.SetUpStats
+	},
+	{
+		partName = "Upgrades",
+		template = GuiContainer:WaitForChild("Upgrades"),
+		setup = UiModule.SetUpUpgrades
+	}
+	
+	
+}
+
+for _, plot in ipairs(TycoonPlots:GetChildren()) do
+	
+	for _, config in ipairs(ScreenMap) do
+		local physicalPart = plot:FindFirstChild(config.partName)
+		
+		if physicalPart then
+			local clonedGui = config.template:Clone()
+			clonedGui.Name = plot.Name.."_"..config.partName
+			
+			clonedGui.Adornee = physicalPart
+			clonedGui.Parent = GuiContainer
+			
+			config.setup(clonedGui,plot)
+			
+		end
+	end
+	
+end
+
+for _, config in ipairs(ScreenMap) do
+	config.template:Destroy()
+end
