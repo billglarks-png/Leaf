@@ -1,0 +1,33 @@
+local LeafColors = {
+	Green = Color3.fromRGB(40, 100, 22),
+	Gold  = Color3.fromRGB(195, 182, 37),
+	Platnium = Color3.fromRGB(131, 154, 229),
+
+
+	
+}
+
+
+
+
+
+function LeafColors.GetRarity()
+	local color = nil
+	local value = nil
+	local rng = math.random(0,1000)
+	if rng > 900 then
+		color = LeafColors.Platnium
+		value = 10
+		
+	elseif rng > 600 and rng < 899 then
+		color = LeafColors.Gold
+		value = 5
+	else
+		color = LeafColors.Green
+		value = 1
+	end
+	return color, value
+end
+
+
+return LeafColors
