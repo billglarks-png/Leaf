@@ -1,0 +1,78 @@
+local UiModule = {}
+
+local UpgradesRemote = game.ReplicatedStorage:WaitForChild("UpgradesRemote")
+
+function UiModule.SetUpUpgrades(gui, plot)
+
+	
+	local MaxButton = gui.Frame:FindFirstChild("MaxGui")
+	local SpawnRateButton = gui.Frame:FindFirstChild("SpawnRate")
+	
+	
+	if MaxButton then
+		MaxButton.Activated:Connect(function()
+			UpgradesRemote:FireServer("Max")
+		end)
+	end
+	
+	
+	if SpawnRateButton then
+		SpawnRateButton.Activated:Connect(function()
+			UpgradesRemote:FireServer("SpawnRate")
+		end)
+	end
+	
+end
+
+
+function UiModule.SetUpStats(gui, plot)
+	
+
+	
+	local TotalLeaves = gui.Frame:FindFirstChild("Total")
+	if TotalLeaves then
+		TotalLeaves.Text = "Leaves in Field: "..plot.TotalLeaves.Value
+	end
+	
+	plot.TotalLeaves.Changed:Connect(function(NewValue)
+		TotalLeaves.Text = "Leaves in Field: "..NewValue
+	end)
+	
+	local MaxLeaves = gui.Frame:FindFirstChild("MaxGui")
+	if MaxLeaves then
+		MaxLeaves.Text = "Max Leaves: "..plot.MaxLeaves.Value
+	end
+	
+	plot.MaxLeaves.Changed:Connect(function(NewValue)
+		MaxLeaves.Text = "Max Leaves: "..NewValue
+	end)
+	
+	
+	local OwnerGui = gui.Frame:FindFirstChild("Owner")
+	
+	local currentowner = plot.Owner.Value
+	
+	OwnerGui.Text = "Owner: "..(currentowner and currentowner.Name or "None")
+	
+	plot.Owner.Changed:Connect(function(newOwner)
+		if newOwner then
+			OwnerGui.Text = "Owner: "..newOwner.Name
+		else
+			OwnerGui.Text = "Owner: None"
+		end
+			
+		
+	end)
+
+	
+	
+end
+
+
+
+
+
+
+
+
+return UiModule
