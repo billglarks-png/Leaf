@@ -1,0 +1,37 @@
+
+local Upgrades = require(game.ReplicatedStorage:WaitForChild("Upgrades"))
+local UpgradesRemote = game.ReplicatedStorage.UpgradesRemote
+
+
+
+
+
+UpgradesRemote.OnServerEvent:Connect(function(player, UpgradeType)
+	
+	
+		local assignedPlot = nil
+		for _, plot in ipairs(workspace.TycoonPlots:GetChildren()) do
+			if plot.Owner.Value == player then
+				assignedPlot = plot
+				break
+			end
+		end
+
+		if not assignedPlot then return end -- Exploiter patch: they don't own a plot!
+
+		-- Run your module upgrades here...
+
+
+
+	
+	if UpgradeType == "MaxLeaves" then
+		Upgrades.Max(player)
+	elseif UpgradeType == "SpawnRate" then
+		
+	Upgrades.SpawnRate(player)
+	end
+	
+end)
+	
+	
+
