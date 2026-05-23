@@ -1,0 +1,36 @@
+local Upgrades = {}
+
+
+local MaxCost = 10
+local MaxIncr = 5
+
+
+local SpawnIncr = 0.1
+
+
+function Upgrades.Max(player, Plot)
+
+	local GetLeaves = player.leaderstats:FindFirstChild("Leaves")
+	local MaxLeaves = Plot.MaxLeaves.Value
+	
+	if GetLeaves.Value >= MaxCost then
+		MaxLeaves.Value += MaxIncr
+		GetLeaves.Value -= MaxCost
+	end
+	
+end
+
+
+function Upgrades.SpawnRate(player, Plot)
+	local SpawnRate = Plot.SpawnRate.Value
+	
+	if SpawnRate.Value > 0.5 then
+		SpawnRate.Value -= SpawnIncr
+	
+	end
+	
+end
+
+
+
+return Upgrades
