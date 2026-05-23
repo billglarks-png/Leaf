@@ -1,0 +1,113 @@
+local ServerStorage = game:GetService("ServerStorage")
+local LeafTemplate = ServerStorage:WaitForChild("Leaf")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local AnimateLeaf = TweenInfo.new(.5,Enum.EasingStyle.Sine, Enum.EasingDirection.Out,0,false,0)
+local LeafColor = require(game.ReplicatedStorage.LeafColors)
+
+local TycoonPlots = game.Workspace:WaitForChild("TycoonPlots")
+
+local function LeafSpawn(plot)
+	local platform = plot:WaitForChild("Platform")
+	local totalleaves = plot:WaitForChild("TotalLeaves")
+	local maxleaves = plot:WaitForChild("MaxLeaves")
+	local spawnrate = plot:WaitForChild("SpawnRate")
+	local owner = plot:WaitForChild("Owner")
+	
+	local LeafStorage = plot:FindFirstChild("LeafStorage")
+	if not LeafStorage then
+		LeafStorage = Instance.new("Folder")
+		LeafStorage.Name = "LeafStorage"
+		LeafStorage.Parent = plot
+		
+	end
+	task.spawn(function()
+		
+	while true do
+		
+		
+
+		if #LeafStorage:GetChildren() < maxleaves.Value  and owner.Value then
+			local clonedleaf = LeafTemplate:Clone()
+			clonedleaf.Parent = LeafStorage
+			
+			
+			
+				local xmin = platform.Position.X - (platform.Size.X /2-4)
+				local xmax = platform.Position.X + (platform.Size.X /2-4)
+
+
+				local zmin = platform.Position.Z - (platform.Size.Z /2-4)
+				local zmax = platform.Position.Z + (platform.Size.Z /2-4)
+
+				local randomx = math.random(xmin, xmax)
+				local randomz = math.random(zmin, zmax)
+
+				clonedleaf.Position = Vector3.new(randomx, 70, randomz)
+		
+			
+			
+			local choicecolor,reward = LeafColor.GetRarity()
+			clonedleaf.Color = choicecolor
+			clonedleaf:SetAttribute("Reward",reward)
+			
+			local TweenProperties = { 
+				
+					Position = Vector3.new(randomx, platform.Position.Y+platform.Size.Y/2, randomz),
+				
+			}
+			
+			local FallingLeaf = TweenService:Create(clonedleaf,AnimateLeaf,TweenProperties)
+			
+			FallingLeaf:Play()
+			
+			totalleaves.Value += 1
+			
+			local isCollected = false
+			
+			clonedleaf.Touched:Connect(function(hit)
+				if isCollected then return end
+				
+				local player = Players:GetPlayerFromCharacter(hit.Parent)
+				local currentOwner = owner.Value
+				
+				if player and player == currentOwner then
+					isCollected = true
+					totalleaves.Value -= 1
+					clonedleaf:Destroy()
+					
+					currentOwner.leaderstats.Leaves.Value += reward
+				elseif hit.Name == "Bot" and currentOwner then
+					isCollected = true
+					totalleaves.Value -= 1
+					clonedleaf:Destroy()
+					
+					currentOwner.leaderstats.Leaves.Value += reward
+				end
+				
+				
+			end)
+			
+			
+			
+		end
+	task.wait(spawnrate.Value)
+	
+	end
+		
+	end)
+	
+	
+	
+end
+
+for _, plot in ipairs(TycoonPlots:GetChildren()) do
+	LeafSpawn(plot)
+	
+end
+
+TycoonPlots.ChildAdded:Connect(function(child)
+	if child:IsA("Folder") or child:IsA("Model") then
+		LeafSpawn(child)
+	end
+end)
